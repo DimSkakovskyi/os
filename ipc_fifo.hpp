@@ -27,7 +27,6 @@ namespace ipc
     }
   }
 
-  // O_RDWR щоб open() не зависав, якщо інша сторона ще не відкрила FIFO
   inline int openFifoRDWR(const std::string &p)
   {
     int fd = ::open(p.c_str(), O_RDWR);
@@ -87,8 +86,6 @@ namespace ipc
     return true;
   }
 
-  // Не блокує: читає з reqFd тільки якщо там є дані.
-  // Повертає true лише для CANCEL/STOP.
   inline bool tryReadControl(int reqFd, std::string &cmd, std::string &payload)
   {
     fd_set set;
@@ -112,7 +109,6 @@ namespace ipc
     return (cmd == "CANCEL" || cmd == "STOP");
   }
 
-  // ---- raw mode для клавіш без Enter ----
   struct TermiosGuard
   {
     termios oldt{};
@@ -157,4 +153,4 @@ namespace ipc
     return false;
   }
 
-} // namespace ipc
+}

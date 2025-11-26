@@ -330,7 +330,6 @@ int main()
       }
     } });
 
-  // відправили задачі
   w1.state.store(WorkerState::Working);
   w2.state.store(WorkerState::Working);
 
@@ -367,7 +366,6 @@ int main()
       throw;
     } });
 
-  // чекати або cancel
   while (!g_cancel.load())
   {
     auto r1 = fut1.wait_for(std::chrono::milliseconds(50));
@@ -376,8 +374,6 @@ int main()
       break;
   }
 
-  // Перед будь-яким фінальним друком — вимикаємо inputThread,
-  // щоб результат НЕ виводився "поверх" prompt.
   g_exitInput.store(true);
   if (inputThread.joinable())
     inputThread.join();
@@ -391,13 +387,11 @@ int main()
     ipc::writeLine(w1.reqFd, std::string("CANCEL ") + reason);
     ipc::writeLine(w2.reqFd, std::string("CANCEL ") + reason);
 
-    // щоб точно перейти на новий рядок після можливого prompt
     withConsole([&]
                 {
       std::cout << "\nCANCELLED: " << reason << "\n";
       printStatus(w1, w2); });
 
-    // дочекаємось завершення futures (щоб не лишити потоки)
     try
     {
       (void)fut1.get();
@@ -421,7 +415,6 @@ int main()
       double y2 = fut2.get();
       double combined = y1 * y2;
 
-      // гарантовано починаємо з нового рядка
       withConsole([&]
                   {
         std::cout << "\n";
@@ -444,7 +437,6 @@ int main()
     }
   }
 
-  // cleanup
   if (w1.reqFd >= 0)
     ::close(w1.reqFd);
   if (w1.resFd >= 0)
